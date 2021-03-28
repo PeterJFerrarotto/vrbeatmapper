@@ -525,6 +525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Device: 548
   Wand: {fileID: 8233977632224208048}
+  SpeedThreshold: 1
 --- !u!1 &8233977631341649876
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,6 +916,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Device: 292
   Wand: {fileID: 8233977632011742917}
+  SpeedThreshold: 1
 --- !u!1 &8233977631352285577
 GameObject:
   m_ObjectHideFlags: 0

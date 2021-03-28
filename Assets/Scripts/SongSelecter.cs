@@ -68,6 +68,12 @@ namespace VRBeatMapper
 
         }
 
+        public void ForceLoad()
+        {
+            GameManager.Instance.ForceLoad();
+            StartCoroutine(PopulateSongList());
+        }
+
         public void SelectSong(int value)
         {
             string selection = songSelection.options[value].text;

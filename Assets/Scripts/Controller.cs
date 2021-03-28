@@ -7,6 +7,29 @@ namespace VRBeatMapper
     public class Controller : MonoBehaviour
     {
 
+        private void OnTriggerEnter(Collider other)
+        {
+            NoteCreator creator;
+            if (other.gameObject.TryGetComponent<NoteCreator>(out creator))
+            {
+                currentLane = creator.laneIndex;
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            NoteCreator creator;
+            if (other.gameObject.TryGetComponent<NoteCreator>(out creator))
+            {
+                if (currentLane == creator.laneIndex)
+                {
+                    currentLane = -1;
+                }
+            }
+        }
+
+        private int currentLane = -1;
+
         private UnityEngine.XR.InputDevice controllerReference;
 
         [SerializeField]
@@ -17,6 +40,9 @@ namespace VRBeatMapper
 
         [SerializeField]
         public float SpeedThreshold = 1.0f;
+
+        [SerializeField]
+        public GameObject Baubin;
 
         PhysicsTracker tracker = new PhysicsTracker();
 
@@ -47,13 +73,26 @@ namespace VRBeatMapper
                     float speed = tracker.Speed;
                     if (speed >= SpeedThreshold)
                     {
-                        UnityEngine.XR.HapticCapabilities hapticCapabilities;
-                        if (controllerReference.TryGetHapticCapabilities(out hapticCapabilities))
-                        {
-                            controllerReference.SendHapticImpulse(1, 0.5f, 0.125f);
-                        }
                         Vector3 direc = tracker.Direction;
                         Debug.Log(direc);
+                        if (currentLane != -1)
+                        {
+                            NoteType noteType;
+                            if ((Device & UnityEngine.XR.InputDeviceCharacteristics.Left) != 0)
+                            {
+                                noteType = NoteType.LEFT;
+                            }
+                            else
+                            {
+                                noteType = NoteType.RIGHT;
+                            }
+                            SongManager.Instance.AddNote(currentLane, noteType, direc);
+                            UnityEngine.XR.HapticCapabilities hapticCapabilities;
+                            if (controllerReference.TryGetHapticCapabilities(out hapticCapabilities))
+                            {
+                                controllerReference.SendHapticImpulse(1, 0.5f, 0.125f);
+                            }
+                        }
                     }
 
                 }

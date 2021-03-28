@@ -133,6 +133,8 @@ namespace VRBeatMapper
         public List<Obstacle> Obstacles { get; set; }
         [JsonProperty("_specialEventsKeywordFilters")]
         public SpecialEventsKeywordFilters SpecialEventsKeywordFilters { get; set; }
+        [JsonIgnore]
+        public string filePath { get; set; }
     }
 
     public enum NoteType

@@ -38,6 +38,8 @@ namespace VRBeatMapper
             private set;
         }
 
+        private string difficultyName;
+
         private static GameManager instance;
 
         public static GameManager Instance
@@ -64,6 +66,11 @@ namespace VRBeatMapper
 
         // Start is called before the first frame update
         void Start()
+        {
+            StartCoroutine(LoadSongs());
+        }
+
+        public void ForceLoad()
         {
             StartCoroutine(LoadSongs());
         }
@@ -115,7 +122,7 @@ namespace VRBeatMapper
                 throw new System.Exception("File does not exist");
             }
             SongDifficulty difficulty = JsonConvert.DeserializeObject<SongDifficulty>(System.IO.File.ReadAllText(filePath));
-            Debug.Log(difficulty.Notes.Count);
+            difficulty.filePath = filePath;
             return difficulty;
         }
 
@@ -160,7 +167,14 @@ namespace VRBeatMapper
             if (songToUse.difficultyMaps.ContainsKey(difficulty))
             {
                 difficultyToEdit = songToUse.difficultyMaps[difficulty];
+                difficultyName = difficulty;
             }
+        }
+
+        public void SaveSongChanges()
+        {
+            string toWrite = JsonConvert.SerializeObject(difficultyToEdit);
+            System.IO.File.WriteAllText(difficultyToEdit.filePath, toWrite);
         }
 
         //private IEnumerator loadAudioClip(string audioFilePath)

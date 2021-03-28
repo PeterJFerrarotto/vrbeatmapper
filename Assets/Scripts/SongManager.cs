@@ -53,6 +53,7 @@ namespace VRBeatMapper
         public GameObject RedCubePrefab;
 
         private bool audioLoaded = false;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -187,6 +188,120 @@ namespace VRBeatMapper
                 }
                 block.transform.Rotate(transform.forward, rotation);
             }
+        }
+
+        private bool isCloserToGreaterAngle(float angle1, float angle2, float currentAngle)
+        {
+            return (angle2 - currentAngle) < (currentAngle - angle1);
+        }
+
+        private float determineClosestAngle(float angle1, float angle2, float currentAngle)
+        {
+            if (isCloserToGreaterAngle(angle1, angle2, currentAngle))
+            {
+                return angle2;
+            }
+            return angle1;
+        }
+
+        private CutDirection GetCutDirection(float angle)
+        {
+            switch (angle)
+            {
+                case 0.0f:
+                    return CutDirection.TOP;
+                case 45.0f:
+                    return CutDirection.TOPRIGHT;
+                case 90.0f:
+                    return CutDirection.RIGHT;
+                case 135.0f:
+                    return CutDirection.BOTTOMRIGHT;
+                case 180.0f:
+                    return CutDirection.BOTTOM;
+                case 225.0f:
+                    return CutDirection.BOTTOMLEFT;
+                case 270.0f:
+                    return CutDirection.LEFT;
+                case 315.0f:
+                    return CutDirection.TOPLEFT;
+                default:
+                    return CutDirection.NONDIRECTION;
+            }
+        }
+
+        public void SaveSong()
+        {
+            GameManager.Instance.SaveSongChanges();
+        }
+
+        public void AddNote(int laneIndex, NoteType noteType, Vector3 direction)
+        {
+            float timeToUse = (float)beatNum;
+            GameObject noteBlock;
+            if (noteType == NoteType.LEFT)
+            {
+                noteBlock = Instantiate(RedCubePrefab, lanePositions[laneIndex]);
+            }
+            else
+            {
+                noteBlock = Instantiate(BlueCubePrefab, lanePositions[laneIndex]);
+            }
+
+            noteBlock.transform.localPosition = new Vector3(0, 0, (float)beatNum);
+
+            float angle = Mathf.Rad2Deg * Mathf.Atan(direction.y / direction.x);
+            if (angle < 0)
+            {
+                angle += 360.0f;
+            }
+            if (angle > 360)
+            {
+                angle -= 360;
+            }
+            CutDirection cutDirection;
+            Debug.Log(angle);
+            if (angle <= 45)
+            {
+                angle = determineClosestAngle(0, 45, angle);
+            }
+            else if (angle > 45 && angle <= 90)
+            {
+                angle = determineClosestAngle(45, 90, angle);
+            }
+            else if (angle > 90 && angle <= 125)
+            {
+                angle = determineClosestAngle(90, 135, angle);
+            }
+            else if (angle > 125 && angle <= 180)
+            {
+                angle = determineClosestAngle(135, 180, angle);
+            }
+            else if (angle > 180 && angle <= 225)
+            {
+                angle = determineClosestAngle(180, 225, angle);
+            }
+            else if (angle > 225 && angle <= 270)
+            {
+                angle = determineClosestAngle(225, 270, angle);
+            }
+            else if (angle > 270 && angle <= 315)
+            {
+                angle = determineClosestAngle(270, 315, angle);
+            }
+            else if (angle > 315)
+            {
+                angle = 315;
+            }
+            noteBlock.transform.Rotate(transform.forward, angle);
+            cutDirection = GetCutDirection(angle);
+            Note note = new Note();
+            note.CutDirection = (int)cutDirection;
+            note.Time = timeToUse;
+            note.LineLayer = laneIndex / 4;
+            Debug.Log(note.LineLayer);
+            note.LineIndex = laneIndex % 4;
+            note.Type = (int)noteType;
+            GameManager.Instance.difficultyToEdit.Notes.Add(note);
         }
 
     }
